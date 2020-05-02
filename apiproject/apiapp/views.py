@@ -114,9 +114,19 @@ class IngredienteDetail(generics.RetrieveUpdateDestroyAPIView):
         except ObjectDoesNotExist: 
             return Response({'Code': '404', 'Description': 'Ingrediente inexistente'}, status=status.HTTP_404_NOT_FOUND)
 
+
+        for rel in ingrediente._meta.get_fields(): #este trozo de código lo obtuve de https://gist.github.com/freewayz/69d1b8bcb3c225bea57bd70ee1e765f8
+            try:
+                related = rel.related_model.objects.filter(**{rel.field.name: ingrediente})
+                if related.exists():
+                    return Response({'Code': '409', 'Description': 'Ingrediente no se puede borrar, se encuentra presente en una hamburguesa'}, status=status.HTTP_409_CONFLICT)
+            except AttributeError:  # an attribute error for field occurs when checking for AutoField
+                pass  # just pass as we dont need to check for AutoField
         ingrediente.delete()
         return Response({'Code': '200', 'Description': 'Ingrediente eliminado'}, status=status.HTTP_200_OK)
 
+            
+        
 
 
 @api_view(['DELETE', 'PUT'])
@@ -136,9 +146,20 @@ def consulta_anidada(request, id_ham, id_ing, format=None):
     except ObjectDoesNotExist: 
         return Response({'Code': '404', 'Description': 'Ingrediente inexistente'},status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'DELETE': ###REVISAR QUE ESTÉ EN LA HAMBURGUESA ANTES DE RETIRARLO
-        hamburguesa.ingredientes.remove(ingrediente)
-        return Response({'Code': '200', 'Description': 'Ingrediente retirado'}, status=status.HTTP_200_OK)
+    if request.method == 'DELETE': 
+        for rel in ingrediente._meta.get_fields(): #este trozo de código lo obtuve de https://gist.github.com/freewayz/69d1b8bcb3c225bea57bd70ee1e765f8
+            try:
+                related = rel.related_model.objects.filter(**{rel.field.name: ingrediente})
+                if related.exists():
+                    id_related = related.values_list('id', flat=True)[0]
+                    if int(id_related) == int(id_ham):
+                        hamburguesa.ingredientes.remove(ingrediente)
+                        return Response({'Code': '200', 'Description': 'Ingrediente retirado'}, status=status.HTTP_200_OK)
+            except AttributeError:  # an attribute error for field occurs when checking for AutoField
+                pass  # just pass as we dont need to check for AutoField
+        return Response({'Code': '404', 'Description': 'Ingrediente inexistente en la hamburguesa'}, status=status.HTTP_404_NOT_FOUND)
+
+        
 
     elif request.method == 'PUT':
         hamburguesa.ingredientes.add(ingrediente)

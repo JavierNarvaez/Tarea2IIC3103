@@ -17,7 +17,7 @@ class Hamburguesa(models.Model):
     precio = models.IntegerField()
     descripcion = models.CharField(max_length=100,  default='')
     imagen = models.CharField(max_length=100, default='')
-    ingredientes = models.ManyToManyField(Ingrediente, blank=True)
+    ingredientes = models.ManyToManyField(Ingrediente, blank=True, related_name='hamburguesas')
 
    
 
