@@ -11,9 +11,9 @@ from .views import HamburguesaList, HamburguesaDetail, IngredienteList, Ingredie
 
 urlpatterns=[
     path('hamburguesa', HamburguesaList.as_view(), name='hamburguesa-list'),
-    path('hamburguesa/<int:id>', HamburguesaDetail.as_view(), name='hamburguesa-detail'), 
+    path('hamburguesa/<str:id>', HamburguesaDetail.as_view(), name='hamburguesa-detail'), 
     path('ingrediente', IngredienteList.as_view(), name='ingrediente-list'),
-    path('ingrediente/<int:id>', IngredienteDetail.as_view(), name='ingrediente-detail'),
+    path('ingrediente/<str:id>', IngredienteDetail.as_view(), name='ingrediente-detail'),
     path('hamburguesa/<str:id_ham>/ingrediente/<str:id_ing>', consulta_anidada),
     path('', api_root),
 ]

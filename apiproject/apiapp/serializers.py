@@ -15,8 +15,8 @@ class IngredienteSerializer(serializers.HyperlinkedModelSerializer):
             'url': {'view_name': 'apiapp:ingrediente-detail', 'lookup_field': 'id'}
         }
 
-class IngredienteSerializer2(serializers.HyperlinkedModelSerializer):
-    path = serializers.HyperlinkedIdentityField(view_name='apiapp:ingrediente-detail')
+class EachIngredienteSerializer(serializers.HyperlinkedModelSerializer):
+    path = serializers.HyperlinkedIdentityField(view_name='apiapp:ingrediente-detail', lookup_field='id')
     class Meta:
         model = Ingrediente
         fields = ['path']
@@ -24,13 +24,9 @@ class IngredienteSerializer2(serializers.HyperlinkedModelSerializer):
             'url': {'view_name': 'apiapp:ingrediente-detail', 'lookup_field': 'id'}
         }
 
+
 class HamburguesaSerializer(serializers.HyperlinkedModelSerializer):
-    ingredientes = serializers.HyperlinkedRelatedField(
-        queryset = Ingrediente.objects.all(),
-        many = True,
-        read_only = False,
-        view_name = 'apiapp:ingrediente-detail',
-        lookup_field='id')
+    ingredientes = EachIngredienteSerializer(many=True, read_only=True)
     class Meta:
         model = Hamburguesa
         fields = ['id', 'nombre', 'precio', 'descripcion', 'imagen', 'ingredientes']
